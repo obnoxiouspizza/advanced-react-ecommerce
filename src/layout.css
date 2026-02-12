@@ -1,0 +1,323 @@
+:root {
+  --bg: #0b0f19;
+  --panel: rgba(255, 255, 255, 0.06);
+  --panel2: rgba(255, 255, 255, 0.08);
+  --text: rgba(255, 255, 255, 0.92);
+  --muted: rgba(255, 255, 255, 0.68);
+  --border: rgba(255, 255, 255, 0.12);
+  --accent: #7c3aed; /* purple */
+  --accent2: #22c55e; /* green */
+  --danger: #ef4444; /* red */
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(
+      1200px 600px at 20% 10%,
+      rgba(124, 58, 237, 0.22),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 500px at 80% 20%,
+      rgba(34, 197, 94, 0.12),
+      transparent 60%
+    ),
+    var(--bg);
+  color: var(--text);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Helvetica,
+    Arial;
+}
+
+a {
+  color: var(--text);
+  text-decoration: none;
+  opacity: 0.92;
+}
+
+a:hover {
+  opacity: 1;
+}
+
+/* Layout */
+.page {
+  padding: 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.sectionTitle {
+  margin: 0 0 14px 0;
+  font-size: 26px;
+  letter-spacing: 0.3px;
+}
+
+.subtle {
+  color: var(--muted);
+  margin: 0 0 18px 0;
+}
+
+/* Navbar */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(11, 15, 25, 0.65);
+}
+
+.navBrand {
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  margin-right: auto;
+}
+
+.navLink {
+  padding: 8px 10px;
+  border-radius: 10px;
+}
+
+.navLink:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Controls */
+.controlsRow {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 14px 0 18px 0;
+  flex-wrap: wrap;
+}
+
+.select {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+  padding: 10px 12px;
+  outline: none;
+  min-width: 220px;
+}
+
+.select:focus {
+  border-color: rgba(124, 58, 237, 0.8);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.3);
+}
+
+.select option {
+  background: #0b0f19; /* dark background for the dropdown list */
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.selectLabel {
+  display: block;
+  margin: 0 0 6px 2px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.badge {
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Product grid + cards */
+.productGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.card {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.productTitle {
+  margin: 10px 0 6px 0;
+  font-size: 15px;
+  line-height: 1.25;
+}
+
+.metaRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 12px;
+  margin: 4px 0 10px 0;
+}
+
+.desc {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+  max-height: 48px;
+  overflow: hidden;
+}
+
+.productImgWrap {
+  width: 100%;
+  height: 180px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.productImg {
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+}
+
+/* Buttons */
+.btn {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition:
+    transform 0.05s ease,
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btnPrimary {
+  background: rgba(124, 58, 237, 0.35);
+  border-color: rgba(124, 58, 237, 0.65);
+}
+
+.btnPrimary:hover {
+  background: rgba(124, 58, 237, 0.45);
+}
+
+.btnDanger {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.55);
+}
+
+.btnSuccess {
+  background: rgba(34, 197, 94, 0.18);
+  border-color: rgba(34, 197, 94, 0.55);
+}
+
+/* Cart */
+.cartList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cartRow {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid var(--border);
+  padding: 12px;
+  border-radius: 16px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.cartImgWrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cartImg {
+  width: 85%;
+  height: 85%;
+  object-fit: contain;
+}
+
+.cartRowBody {
+  flex: 1;
+  min-width: 180px;
+}
+
+.qtyInput {
+  width: 70px;
+  margin-left: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px 10px;
+  outline: none;
+}
+
+.qtyInput:focus {
+  border-color: rgba(124, 58, 237, 0.6);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.25);
+}
+
+.noMargin {
+  margin: 0;
+}
+
+.tightMargin {
+  margin: 6px 0;
+}
+
+.spacerTop {
+  margin-top: 16px;
+}
+
+.toast {
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  background: rgba(34, 197, 94, 0.12);
+  padding: 10px 12px;
+  border-radius: 14px;
+  margin: 10px 0 14px 0;
+  color: rgba(255, 255, 255, 0.9);
+}
