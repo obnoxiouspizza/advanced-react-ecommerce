@@ -1,67 +1,106 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { CartItem, Product } from "./cartTypes";
-import {
-  loadCartFromSession,
-  saveCartToSession,
-  clearCartSession,
-} from "../../utils/sessionCart";
+
+export type CartItem = {
+  id: string | number;
+  title: string;
+  price: number;
+  image: string;
+  category?: string;
+  description?: string;
+  quantity: number;
+};
 
 type CartState = {
   items: CartItem[];
 };
 
-const initialState: CartState = {
-  items: loadCartFromSession(),
+const loadCart = (): CartItem[] => {
+  try {
+    const raw = sessionStorage.getItem("cart");
+    if (!raw) return [];
+    return JSON.parse(raw) as CartItem[];
+  } catch {
+    return [];
+  }
 };
 
-const persist = (items: CartItem[]) => {
-  saveCartToSession(items);
+const saveCart = (items: CartItem[]) => {
+  try {
+    sessionStorage.setItem("cart", JSON.stringify(items));
+  } catch {
+    // ignore
+  }
+};
+
+const initialState: CartState = {
+  items: loadCart(),
 };
 
 const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
-    addToCart: (state, action: PayloadAction<Product>) => {
-      const product = action.payload;
-      const existing = state.items.find((p) => p.id === product.id);
+    addToCart: (
+      state,
+      action: PayloadAction<{
+        id: string | number;
+        title: string;
+        price: number;
+        image: string;
+        category?: string;
+        description?: string;
+      }>,
+    ) => {
+      const existing = state.items.find((i) => i.id === action.payload.id);
 
       if (existing) {
-        existing.qty += 1;
+        existing.quantity += 1;
       } else {
-        state.items.push({ ...product, qty: 1 });
+        state.items.push({ ...action.payload, quantity: 1 });
       }
 
-      persist(state.items);
+      saveCart(state.items);
     },
 
-    removeFromCart: (state, action: PayloadAction<number>) => {
-      const id = action.payload;
-      state.items = state.items.filter((p) => p.id !== id);
-      persist(state.items);
-    },
-
-    updateQty: (state, action: PayloadAction<{ id: number; qty: number }>) => {
-      const { id, qty } = action.payload;
-      const item = state.items.find((p) => p.id === id);
-      if (!item) return;
-
-      item.qty = qty;
-
-      if (item.qty <= 0) {
-        state.items = state.items.filter((p) => p.id !== id);
-      }
-
-      persist(state.items);
+    removeFromCart: (state, action: PayloadAction<string | number>) => {
+      state.items = state.items.filter((i) => i.id !== action.payload);
+      saveCart(state.items);
     },
 
     clearCart: (state) => {
       state.items = [];
-      clearCartSession();
+      saveCart(state.items);
+    },
+
+    incrementQty: (state, action: PayloadAction<string | number>) => {
+      const item = state.items.find((i) => i.id === action.payload);
+      if (!item) return;
+      item.quantity += 1;
+      saveCart(state.items);
+    },
+
+    decrementQty: (state, action: PayloadAction<string | number>) => {
+      const item = state.items.find((i) => i.id === action.payload);
+      if (!item) return;
+
+      item.quantity -= 1;
+
+      // if qty hits 0, remove item
+      if (item.quantity <= 0) {
+        state.items = state.items.filter((i) => i.id !== action.payload);
+      }
+
+      saveCart(state.items);
     },
   },
 });
 
-export const { addToCart, removeFromCart, updateQty, clearCart } =
-  cartSlice.actions;
+export const {
+  addToCart,
+  removeFromCart,
+  clearCart,
+  incrementQty,
+  decrementQty,
+} = cartSlice.actions;
+
 export default cartSlice.reducer;

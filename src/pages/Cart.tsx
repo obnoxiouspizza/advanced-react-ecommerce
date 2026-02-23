@@ -1,106 +1,145 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo, useState } from "react";
-import { useAppDispatch, useAppSelector } from "../app/hooks";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState } from "../app/store";
 import {
-  removeFromCart,
-  updateQty,
   clearCart,
+  removeFromCart,
+  incrementQty,
+  decrementQty,
 } from "../features/cart/cartSlice";
-import "../layout.css";
+import { useAuth } from "../context/useAuth";
+import { createOrder, type OrderItem } from "../firebase/orderService";
 
-const PLACEHOLDER = "https://via.placeholder.com/200x200?text=No+Image";
-
-export default function Cart() {
-  const dispatch = useAppDispatch();
-  const items = useAppSelector((state) => state.cart.items);
-  const [message, setMessage] = useState<string>("");
+const Cart = () => {
+  const dispatch = useDispatch();
+  const { user } = useAuth();
+  const cartItems = useSelector((state: RootState) => state.cart.items);
+  const [message, setMessage] = useState<string | null>(null);
 
   const totals = useMemo(() => {
-    const totalProducts = items.reduce((sum, item) => sum + item.qty, 0);
-    const totalPrice = items.reduce(
-      (sum, item) => sum + item.qty * item.price,
+    const totalQuantity = cartItems.reduce((sum, i) => sum + i.quantity, 0);
+    const totalPrice = cartItems.reduce(
+      (sum, i) => sum + i.price * i.quantity,
       0,
     );
-    return { totalProducts, totalPrice };
-  }, [items]);
+    return { totalQuantity, totalPrice: Number(totalPrice.toFixed(2)) };
+  }, [cartItems]);
 
-  const handleCheckout = () => {
-    dispatch(clearCart());
-    setMessage("✅ Checkout complete! Your cart has been cleared.");
-    setTimeout(() => setMessage(""), 3000);
+  const checkout = async () => {
+    setMessage(null);
+
+    if (!user) {
+      setMessage("Please login to place an order.");
+      return;
+    }
+
+    if (cartItems.length === 0) {
+      setMessage("Your cart is empty.");
+      return;
+    }
+
+    const items: OrderItem[] = cartItems.map((i) => ({
+      productId: String(i.id),
+      title: i.title,
+      price: i.price,
+      quantity: i.quantity,
+      image: i.image,
+    }));
+
+    try {
+      await createOrder({
+        userId: user.uid,
+        items,
+        totalQuantity: totals.totalQuantity,
+        totalPrice: totals.totalPrice,
+      });
+
+      dispatch(clearCart());
+      setMessage("Checkout complete! Your order was saved.");
+    } catch (err: any) {
+      setMessage(err?.message ?? "Checkout failed.");
+    }
   };
 
   return (
-    <div>
-      <h1 className="sectionTitle">Your Cart</h1>
+    <div className="container cart-page">
+      <h1 className="page-title">Cart</h1>
+      {message && <p className="subtle">{message}</p>}
 
-      {message && <div className="toast">{message}</div>}
-
-      {items.length === 0 ? (
-        <p className="subtle">
-          Your cart is empty. Add something from the Home page.
-        </p>
-      ) : (
-        <>
-          <div className="controlsRow">
-            <span className="badge">Items: {totals.totalProducts}</span>
-            <span className="badge">
-              Total: ${totals.totalPrice.toFixed(2)}
-            </span>
-            <button className="btn btnSuccess" onClick={handleCheckout}>
-              Checkout
-            </button>
+      <div className="cart-summary-card">
+        <div className="totals">
+          <div>
+            <strong>Total Items:</strong> {totals.totalQuantity}
           </div>
+          <div>
+            <strong>Total Price:</strong> ${totals.totalPrice}
+          </div>
+        </div>
 
-          <div className="cartList">
-            {items.map((item) => (
-              <div key={item.id} className="cartRow">
-                <div className="cartImgWrap">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="cartImg"
-                    onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = PLACEHOLDER;
-                    }}
-                  />
+        <button className="btn btn-primary" type="button" onClick={checkout}>
+          Checkout
+        </button>
+      </div>
+
+      <div className="cart-list">
+        {cartItems.length === 0 ? (
+          <p className="subtle">No items in your cart.</p>
+        ) : (
+          cartItems.map((item) => (
+            <div key={item.id} className="cart-item">
+              <img
+                src={item.image}
+                alt={item.title}
+                onError={(e) =>
+                  (e.currentTarget.src = "https://via.placeholder.com/150")
+                }
+              />
+
+              <div>
+                <p className="cart-item__title">{item.title}</p>
+                <p className="cart-item__sub">
+                  ${item.price} each • Subtotal: $
+                  {(item.price * item.quantity).toFixed(2)}
+                </p>
+
+                {/* Quantity controls */}
+                <div>
+                  <button
+                    className="btn"
+                    type="button"
+                    onClick={() => dispatch(decrementQty(item.id))}
+                    aria-label="Decrease quantity"
+                  >
+                    −
+                  </button>
+
+                  <span>{item.quantity}</span>
+
+                  <button
+                    className="btn"
+                    type="button"
+                    onClick={() => dispatch(incrementQty(item.id))}
+                    aria-label="Increase quantity"
+                  >
+                    +
+                  </button>
                 </div>
-
-                <div className="cartRowBody">
-                  <p className="noMargin">
-                    <b>{item.title}</b>
-                  </p>
-                  <p className="tightMargin">${item.price.toFixed(2)} each</p>
-
-                  <label className="subtle">
-                    Quantity
-                    <input
-                      type="number"
-                      min={0}
-                      value={item.qty}
-                      onChange={(e) =>
-                        dispatch(
-                          updateQty({
-                            id: item.id,
-                            qty: Number(e.target.value),
-                          }),
-                        )
-                      }
-                      className="qtyInput"
-                    />
-                  </label>
-                </div>
-
-                <button
-                  className="btn btnDanger"
-                  onClick={() => dispatch(removeFromCart(item.id))}
-                >
-                  Remove
-                </button>
               </div>
-            ))}
-          </div>
-        </>
-      )}
+
+              <button
+                className="btn btn-danger"
+                type="button"
+                onClick={() => dispatch(removeFromCart(item.id))}
+              >
+                Remove
+              </button>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
-}
+};
+
+export default Cart;

@@ -1,20 +1,10 @@
 import type { CartItem } from "../features/cart/cartTypes";
 
-const KEY = "cart";
-
 export const loadCartFromSession = (): CartItem[] => {
-  try {
-    const raw = sessionStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as CartItem[]) : [];
-  } catch {
-    return [];
-  }
+  const data = sessionStorage.getItem("cart");
+  return data ? JSON.parse(data) : [];
 };
 
-export const saveCartToSession = (cartItems: CartItem[]): void => {
-  sessionStorage.setItem(KEY, JSON.stringify(cartItems));
-};
-
-export const clearCartSession = (): void => {
-  sessionStorage.removeItem(KEY);
+export const saveCartToSession = (cart: CartItem[]) => {
+  sessionStorage.setItem("cart", JSON.stringify(cart));
 };

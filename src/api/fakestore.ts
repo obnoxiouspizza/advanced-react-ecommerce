@@ -1,25 +1,19 @@
-import axios from "axios";
-import type { Product } from "../features/cart/cartTypes";
-
-const api = axios.create({
-  baseURL: "https://fakestoreapi.com",
-});
-
-export const fetchAllProducts = async (): Promise<Product[]> => {
-  const res = await api.get<Product[]>("/products");
-  return res.data;
+export const fetchProducts = async () => {
+  const res = await fetch("https://fakestoreapi.com/products");
+  if (!res.ok) throw new Error("Failed to fetch products");
+  return res.json();
 };
 
-export const fetchCategories = async (): Promise<string[]> => {
-  const res = await api.get<string[]>("/products/categories");
-  return res.data;
+export const fetchCategories = async () => {
+  const res = await fetch("https://fakestoreapi.com/products/categories");
+  if (!res.ok) throw new Error("Failed to fetch categories");
+  return res.json();
 };
 
-export const fetchProductsByCategory = async (
-  category: string,
-): Promise<Product[]> => {
-  const res = await api.get<Product[]>(
-    `/products/category/${encodeURIComponent(category)}`,
+export const fetchProductsByCategory = async (category: string) => {
+  const res = await fetch(
+    `https://fakestoreapi.com/products/category/${category}`,
   );
-  return res.data;
+  if (!res.ok) throw new Error("Failed to fetch category products");
+  return res.json();
 };

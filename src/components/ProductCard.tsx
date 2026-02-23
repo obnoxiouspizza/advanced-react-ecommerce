@@ -1,52 +1,57 @@
-import type { Product } from "../features/cart/cartTypes";
-import { useAppDispatch } from "../app/hooks";
+import { useDispatch } from "react-redux";
 import { addToCart } from "../features/cart/cartSlice";
-import { toTitleCase } from "../utils/format";
-import "../layout.css";
 
-const PLACEHOLDER = "https://via.placeholder.com/300x300?text=No+Image";
-
-type Props = {
-  product: Product;
+type ProductCardProps = {
+  product: {
+    id: string;
+    title: string;
+    price: number;
+    category: string;
+    description: string;
+    image: string;
+    rating?: { rate?: number };
+  };
 };
 
-export default function ProductCard({ product }: Props) {
-  const dispatch = useAppDispatch();
+const ProductCard = ({ product }: ProductCardProps) => {
+  const dispatch = useDispatch();
+  const rating = product.rating?.rate ?? 0;
 
   return (
-    <div className="card">
-      <div className="productImgWrap">
+    <div className="product-card">
+      <div className="product-media">
         <img
           src={product.image}
           alt={product.title}
-          className="productImg"
-          onError={(e) => {
-            (e.currentTarget as HTMLImageElement).src = PLACEHOLDER;
-          }}
+          onError={(e) =>
+            (e.currentTarget.src = "https://via.placeholder.com/300")
+          }
         />
       </div>
 
-      <div className="cardHeader">
-        <h3 className="productTitle">{product.title}</h3>
-      </div>
+      <div className="product-content">
+        <h3 className="product-title clamp-2">{product.title}</h3>
 
-      <div className="metaRow">
-        <span>Category: {toTitleCase(product.category)}</span>
-        <span>Rating: {product.rating?.rate ?? "N/A"}</span>
-      </div>
+        <div className="product-meta">
+          <span className="pill">{product.category}</span>
+          <span className="pill">⭐ {rating}</span>
+          <span className="pill">${product.price}</span>
+        </div>
 
-      <p className="desc">{product.description}</p>
+        <p className="product-desc clamp-4">{product.description}</p>
 
-      <div className="controlsRow">
-        {/* If inline styles are banned, remove this line and I’ll give you a class */}
-        <span className="badge">${product.price.toFixed(2)}</span>
-        <button
-          className="btn btnPrimary"
-          onClick={() => dispatch(addToCart(product))}
-        >
-          Add to Cart
-        </button>
+        <div className="product-footer">
+          <button
+            className="btn btn-primary"
+            type="button"
+            onClick={() => dispatch(addToCart(product))}
+          >
+            Add to Cart
+          </button>
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default ProductCard;

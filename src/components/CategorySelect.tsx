@@ -1,41 +1,41 @@
-import { useQuery } from "@tanstack/react-query";
-import { fetchCategories } from "../api/fakestore";
-import { toTitleCase } from "../utils/format";
-import "../layout.css";
-
 type Props = {
-  value: string;
+  selected: string;
   onChange: (value: string) => void;
+  categories: string[];
 };
 
-export default function CategorySelect({ value, onChange }: Props) {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["categories"],
-    queryFn: fetchCategories,
-  });
+const formatCategoryLabel = (cat: string) => {
+  const c = (cat ?? "").trim();
 
-  if (isLoading) return <p className="subtle">Loading categories...</p>;
-  if (isError || !data)
-    return <p className="subtle">Failed to load categories.</p>;
+  if (c.toLowerCase() === "men's clothing") return "Men's clothing";
+  if (c.toLowerCase() === "women's clothing") return "Women's clothing";
+  if (c.toLowerCase() === "electronics") return "Electronics";
+  if (c.toLowerCase() === "jewelery") return "Jewelry";
+
+  return c.length ? c[0].toUpperCase() + c.slice(1) : c;
+};
+
+const CategorySelect = ({ selected, onChange, categories }: Props) => {
+  const clean = (categories ?? []).map((c) => (c ?? "").trim()).filter(Boolean);
+
+  const unique = Array.from(new Set(clean));
 
   return (
-    <div>
-      <label htmlFor="categorySelect" className="subtle">
-        Category
-      </label>
-      <select
-        id="categorySelect"
-        className="select"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-      >
-        <option value="all">All Categories</option>
-        {data.map((cat) => (
-          <option key={cat} value={cat}>
-            {toTitleCase(cat)}
-          </option>
-        ))}
-      </select>
-    </div>
+    <select
+      id="category-select"
+      className="select"
+      value={selected}
+      onChange={(e) => onChange(e.target.value)}
+      aria-label="Filter by Category"
+    >
+      <option value="all">All</option>
+      {unique.map((c) => (
+        <option key={c} value={c}>
+          {formatCategoryLabel(c)}
+        </option>
+      ))}
+    </select>
   );
-}
+};
+
+export default CategorySelect;
